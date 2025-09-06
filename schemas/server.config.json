@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "corsConfig": {
+      "additionalProperties": false,
+      "description": "CORS configuration",
+      "properties": {
+        "allowed_origins": {
+          "description": "AllowedOrigins controls value of Access-Control-Allow-Origin header.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "max_age": {
+          "description": "MaxAge controls value of Access-Control-Max-Age header.",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "serverConfig": {
+      "description": "Server configuration",
+      "properties": {
+        "api_prefix": {
+          "description": "API prefix",
+          "type": "string"
+        },
+        "cors": {
+          "$ref": "#/$defs/corsConfig"
+        },
+        "listen_address": {
+          "description": "Address to listen on",
+          "type": "string"
+        },
+        "telemetry": {
+          "$ref": "#/$defs/telemetryConfig"
+        },
+        "tls": {
+          "$ref": "#/$defs/tlsConfig"
+        }
+      },
+      "required": [
+        "listen_address"
+      ],
+      "type": "object"
+    },
+    "telemetryConfig": {
+      "additionalProperties": false,
+      "description": "Telemetry configuration",
+      "properties": {
+        "enabled": {
+          "description": "Whether the metrics instrumentation should be enabled",
+          "type": "boolean"
+        },
+        "path": {
+          "description": "HTTP context where metrics should be exposed",
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "tlsConfig": {
+      "additionalProperties": false,
+      "description": "TLS configuration",
+      "properties": {
+        "cert_file": {
+          "description": "Path to file with certificate bundle",
+          "type": "string"
+        },
+        "key_file": {
+          "description": "Path to file with private key",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/rkosegi/go-http-commons/schemas/serverconfig",
+  "$ref": "#/$defs/serverConfig",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Server configuration schema",
+  "type": "object"
+}

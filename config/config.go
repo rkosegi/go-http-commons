@@ -1,0 +1,115 @@
+/*
+Copyright 2025 Richard Kosegi
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package config
+
+import (
+	"errors"
+	"net"
+	"net/http"
+)
+
+var (
+	ErrTlsKeyPathMissing    = errors.New("server.tls.key_file is required")
+	ErrTlsCertPathMissing   = errors.New("server.tls.cert_file is required")
+	ErrListenAddressMissing = errors.New("server.listen_address is required")
+	ErrCorsBadMaxAge        = errors.New("invalid value of CORS max_age")
+)
+
+const (
+	DefaultMetricPath = "/metrics"
+)
+
+type TLSConfig struct {
+	// Path to certification bundle (cert+CAs)
+	CertFile string `yaml:"cert_file"`
+	// Path to private key
+	KeyFile string `yaml:"key_file"`
+}
+
+// CorsConfig configures CORS
+type CorsConfig struct {
+	// AllowedOrigins controls value of Access-Control-Allow-Origin header.
+	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins"`
+	// MaxAge controls value of Access-Control-Max-Age header.
+	MaxAge int `yaml:"max_age" json:"max_age"`
+}
+
+type TelemetryConfig struct {
+	Enabled bool `yaml:"enabled" json:"enabled"`
+	// Path under which prometheus registry is exposed
+	// If not specified, then "/metrics" is assumed
+	Path *string `yaml:"path,omitempty" json:"path,omitempty"`
+}
+
+type ServerConfig struct {
+	ListenAddress string           `yaml:"listen_address" json:"listen_address"`
+	TLS           *TLSConfig       `yaml:"tls,omitempty" json:"tls,omitempty"`
+	APIPrefix     *string          `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
+	Cors          *CorsConfig      `yaml:"cors,omitempty" json:"cors,omitempty"`
+	Telemetry     *TelemetryConfig `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
+}
+
+// Check checks if configuration is semantically valid
+func (s *ServerConfig) Check() error {
+	if s.TLS != nil {
+		if len(s.TLS.CertFile) == 0 {
+			return ErrTlsCertPathMissing
+		}
+		if len(s.TLS.KeyFile) == 0 {
+			return ErrTlsKeyPathMissing
+		}
+	}
+	if s.Cors != nil {
+		if s.Cors.MaxAge < 0 {
+			return ErrCorsBadMaxAge
+		}
+	}
+	if s.Telemetry != nil {
+		if s.Telemetry.Path == nil {
+			var x = DefaultMetricPath
+			s.Telemetry.Path = &x
+		}
+	}
+	if s.ListenAddress == "" {
+		return ErrListenAddressMissing
+	}
+	return nil
+}
+
+func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
+	var (
+		err error
+		l   net.Listener
+	)
+	if l, err = net.Listen("tcp", s.ListenAddress); err != nil {
+		return err
+	}
+	go func() {
+		if s.TLS == nil {
+			err = http.Serve(l, srv.Handler)
+		} else {
+			err = http.ServeTLS(l, srv.Handler, s.TLS.CertFile, s.TLS.KeyFile)
+		}
+	}()
+	<-stopCh
+	_ = l.Close()
+	return err
+}
+
+func (s *ServerConfig) RunForever(srv *http.Server) error {
+	return s.RunUntil(srv, make(chan bool))
+}
