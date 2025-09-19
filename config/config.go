@@ -20,6 +20,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"time"
 )
 
 var (
@@ -56,11 +57,15 @@ type TelemetryConfig struct {
 }
 
 type ServerConfig struct {
-	ListenAddress string           `yaml:"listen_address" json:"listen_address"`
-	TLS           *TLSConfig       `yaml:"tls,omitempty" json:"tls,omitempty"`
-	APIPrefix     *string          `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
-	Cors          *CorsConfig      `yaml:"cors,omitempty" json:"cors,omitempty"`
-	Telemetry     *TelemetryConfig `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
+	ListenAddress     string           `yaml:"listen_address" json:"listen_address"`
+	TLS               *TLSConfig       `yaml:"tls,omitempty" json:"tls,omitempty"`
+	APIPrefix         *string          `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
+	Cors              *CorsConfig      `yaml:"cors,omitempty" json:"cors,omitempty"`
+	Telemetry         *TelemetryConfig `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
+	ReadTimeout       *time.Duration   `yaml:"read_timeout,omitempty" json:"read_timeout,omitempty"`
+	ReadHeaderTimeout *time.Duration   `yaml:"read_header_timeout,omitempty" json:"read_header_timeout,omitempty"`
+	WriteTimeout      *time.Duration   `yaml:"write_timeout,omitempty" json:"write_timeout,omitempty"`
+	IdleTimeout       *time.Duration   `yaml:"idle_timeout,omitempty" json:"idle_timeout,omitempty"`
 }
 
 // Check checks if configuration is semantically valid
@@ -95,6 +100,18 @@ func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
 		err error
 		l   net.Listener
 	)
+	if s.ReadHeaderTimeout != nil {
+		srv.ReadHeaderTimeout = *s.ReadHeaderTimeout
+	}
+	if s.ReadTimeout != nil {
+		srv.ReadTimeout = *s.ReadTimeout
+	}
+	if s.IdleTimeout != nil {
+		srv.IdleTimeout = *s.IdleTimeout
+	}
+	if s.WriteTimeout != nil {
+		srv.WriteTimeout = *s.WriteTimeout
+	}
 	if l, err = net.Listen("tcp", s.ListenAddress); err != nil {
 		return err
 	}
