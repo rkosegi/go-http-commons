@@ -19,7 +19,6 @@ package middlewares
 import (
 	"bufio"
 	"errors"
-	"log/slog"
 	"net"
 	"net/http"
 	"sync"
@@ -38,7 +37,6 @@ type InterceptedResponse interface {
 }
 
 type respInterceptor struct {
-	logger     *slog.Logger
 	delegate   http.ResponseWriter
 	written    int
 	status     int
