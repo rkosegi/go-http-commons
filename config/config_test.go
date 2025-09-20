@@ -28,17 +28,17 @@ func TestConfigCheck(t *testing.T) {
 		c = &ServerConfig{Cors: &CorsConfig{MaxAge: -1}}
 		assert.Error(t, c.Check())
 	})
-	t.Run("TLS missing key/cert", func(t *testing.T) {
+	t.Run("is TLS enabled", func(t *testing.T) {
 		c = &ServerConfig{TLS: &TLSConfig{}, ListenAddress: ":8080"}
-		assert.Error(t, c.Check())
+		assert.False(t, c.isTls())
 		c.TLS.CertFile = "cert.pem"
-		assert.Error(t, c.Check())
+		assert.False(t, c.isTls())
 		c.TLS.KeyFile = "key.pem"
-		assert.NoError(t, c.Check())
+		assert.True(t, c.isTls())
 	})
 	t.Run("Default telemetry path", func(t *testing.T) {
 		c = &ServerConfig{Telemetry: &TelemetryConfig{Enabled: true}, ListenAddress: ":8080"}
 		assert.NoError(t, c.Check())
-		assert.Equal(t, DefaultMetricPath, *c.Telemetry.Path)
+		assert.Equal(t, DefaultMetricPath, c.Telemetry.Path)
 	})
 }

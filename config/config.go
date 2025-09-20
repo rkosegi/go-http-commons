@@ -21,11 +21,11 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/spf13/pflag"
 )
 
 var (
-	ErrTlsKeyPathMissing    = errors.New("server.tls.key_file is required")
-	ErrTlsCertPathMissing   = errors.New("server.tls.cert_file is required")
 	ErrListenAddressMissing = errors.New("server.listen_address is required")
 	ErrCorsBadMaxAge        = errors.New("invalid value of CORS max_age")
 )
@@ -52,14 +52,14 @@ type CorsConfig struct {
 type TelemetryConfig struct {
 	Enabled bool `yaml:"enabled" json:"enabled"`
 	// Path under which prometheus registry is exposed
-	// If not specified, then "/metrics" is assumed
-	Path *string `yaml:"path,omitempty" json:"path,omitempty"`
+	// If empty, then "/metrics" is assumed
+	Path string `yaml:"path,omitempty" json:"path,omitempty"`
 }
 
 type ServerConfig struct {
 	ListenAddress     string           `yaml:"listen_address" json:"listen_address"`
+	APIPrefix         string           `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
 	TLS               *TLSConfig       `yaml:"tls,omitempty" json:"tls,omitempty"`
-	APIPrefix         *string          `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
 	Cors              *CorsConfig      `yaml:"cors,omitempty" json:"cors,omitempty"`
 	Telemetry         *TelemetryConfig `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
 	ReadTimeout       *time.Duration   `yaml:"read_timeout,omitempty" json:"read_timeout,omitempty"`
@@ -68,31 +68,53 @@ type ServerConfig struct {
 	IdleTimeout       *time.Duration   `yaml:"idle_timeout,omitempty" json:"idle_timeout,omitempty"`
 }
 
+func (t *TLSConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
+	pf.StringVar(&t.CertFile, prefix+"tls-cert-file", "", "TLS certificate file")
+	pf.StringVar(&t.KeyFile, prefix+"tls-key-file", "", "TLS key file")
+}
+
+func (t *TelemetryConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
+	pf.BoolVar(&t.Enabled, prefix+"telemetry-enabled", false, "Whether to enable telemetry")
+	pf.StringVar(&t.Path, prefix+"telemetry-path", "", "Telemetry path")
+}
+
+func (c *CorsConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
+	pf.IntVar(&c.MaxAge, prefix+"cors-max-age", c.MaxAge, "CORS MaxAge value")
+	pf.StringSliceVar(&c.AllowedOrigins, prefix+"cors-allowed-origin", c.AllowedOrigins, "CORS allowed origin")
+}
+
+func (s *ServerConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
+	pf.StringVar(&s.ListenAddress, prefix+"listen-address", s.ListenAddress, "Address to listen on")
+	pf.StringVar(&s.APIPrefix, prefix+"api-prefix", s.APIPrefix, "API prefix")
+	pf.DurationVar(s.ReadTimeout, prefix+"read-timeout", 30*time.Second, "Maximum duration for reading the entire request")
+	pf.DurationVar(s.ReadHeaderTimeout, prefix+"read-header-timeout", 30*time.Second, "Amount of time allowed to read request headers")
+	pf.DurationVar(s.WriteTimeout, prefix+"write-timeout", 30*time.Second, "Maximum duration before timing out writes of the response")
+	pf.DurationVar(s.IdleTimeout, prefix+"idle-timeout", 30*time.Second, "Maximum amount of time to wait for the next request when keep-alives are enabled")
+}
+
 // Check checks if configuration is semantically valid
 func (s *ServerConfig) Check() error {
-	if s.TLS != nil {
-		if len(s.TLS.CertFile) == 0 {
-			return ErrTlsCertPathMissing
-		}
-		if len(s.TLS.KeyFile) == 0 {
-			return ErrTlsKeyPathMissing
-		}
-	}
 	if s.Cors != nil {
 		if s.Cors.MaxAge < 0 {
 			return ErrCorsBadMaxAge
 		}
 	}
 	if s.Telemetry != nil {
-		if s.Telemetry.Path == nil {
-			var x = DefaultMetricPath
-			s.Telemetry.Path = &x
+		if len(s.Telemetry.Path) == 0 {
+			s.Telemetry.Path = DefaultMetricPath
 		}
 	}
 	if s.ListenAddress == "" {
 		return ErrListenAddressMissing
 	}
 	return nil
+}
+
+func (s *ServerConfig) isTls() bool {
+	if s.TLS == nil {
+		return false
+	}
+	return len(s.TLS.CertFile) > 0 && len(s.TLS.KeyFile) > 0
 }
 
 func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
@@ -116,7 +138,7 @@ func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
 		return err
 	}
 	go func() {
-		if s.TLS == nil {
+		if !s.isTls() {
 			err = http.Serve(l, srv.Handler)
 		} else {
 			err = http.ServeTLS(l, srv.Handler, s.TLS.CertFile, s.TLS.KeyFile)
