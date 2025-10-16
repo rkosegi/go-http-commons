@@ -17,8 +17,14 @@ limitations under the License.
 package config
 
 import (
+	"context"
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,4 +47,38 @@ func TestConfigCheck(t *testing.T) {
 		assert.NoError(t, c.Check())
 		assert.Equal(t, DefaultMetricPath, c.Telemetry.Path)
 	})
+}
+
+func TestRunUntil(t *testing.T) {
+	isRunning := false
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	cfg := &ServerConfig{}
+	go func() {
+		isRunning = true
+		_ = cfg.RunUntil(srv.Config, ctx.Done())
+		isRunning = false
+	}()
+
+	assert.NoError(t, retry.Do(func() error {
+		return bool2err(isRunning, "isRunning")
+	}), retry.Attempts(10), retry.Delay(time.Millisecond*100))
+
+	assert.True(t, isRunning)
+	cancel()
+
+	assert.NoError(t, retry.Do(func() error {
+		return bool2err(!isRunning, "!isRunning")
+	}), retry.Attempts(10), retry.Delay(time.Millisecond*100))
+
+	assert.False(t, isRunning)
+}
+
+func bool2err(b bool, s string) error {
+	if !b {
+		return errors.New(s)
+	}
+	return nil
 }

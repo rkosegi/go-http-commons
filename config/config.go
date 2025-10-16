@@ -117,7 +117,7 @@ func (s *ServerConfig) isTls() bool {
 	return len(s.TLS.CertFile) > 0 && len(s.TLS.KeyFile) > 0
 }
 
-func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
+func (s *ServerConfig) RunUntil(srv *http.Server, stopCh <-chan struct{}) error {
 	var (
 		err error
 		l   net.Listener
@@ -150,5 +150,5 @@ func (s *ServerConfig) RunUntil(srv *http.Server, stopCh chan bool) error {
 }
 
 func (s *ServerConfig) RunForever(srv *http.Server) error {
-	return s.RunUntil(srv, make(chan bool))
+	return s.RunUntil(srv, make(chan struct{}))
 }
