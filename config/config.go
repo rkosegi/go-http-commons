@@ -74,8 +74,8 @@ func (t *TLSConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
 }
 
 func (t *TelemetryConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
-	pf.BoolVar(&t.Enabled, prefix+"telemetry-enabled", false, "Whether to enable telemetry")
-	pf.StringVar(&t.Path, prefix+"telemetry-path", "", "Telemetry path")
+	pf.BoolVar(&t.Enabled, prefix+"telemetry-enabled", t.Enabled, "Whether to enable telemetry")
+	pf.StringVar(&t.Path, prefix+"telemetry-path", t.Path, "Telemetry path")
 }
 
 func (c *CorsConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
