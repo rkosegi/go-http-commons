@@ -83,8 +83,6 @@ func (i *impl) SendBytes(w http.ResponseWriter, data []byte) {
 }
 
 func (i *impl) SendWithStatus(w http.ResponseWriter, v interface{}, status int) {
-	w.Header().Set("Content-Type", i.ct)
-	w.WriteHeader(status)
 	// check if value to send is error
 	if err, ok := v.(error); ok {
 		// if so, consult the list of ErrorMappers, if one of them can handle that
@@ -97,6 +95,8 @@ func (i *impl) SendWithStatus(w http.ResponseWriter, v interface{}, status int) 
 		http.Error(w, err.Error(), status)
 		return
 	}
+	w.Header().Set("Content-Type", i.ct)
+	w.WriteHeader(status)
 	// encode value using configured PayloadEncoder
 	if err := i.encFn(w, v); err != nil {
 		// last resort to send back something

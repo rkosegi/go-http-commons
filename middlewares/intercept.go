@@ -37,11 +37,12 @@ type InterceptedResponse interface {
 }
 
 type respInterceptor struct {
-	delegate   http.ResponseWriter
-	written    int
-	status     int
-	req        *http.Request
-	sendStatus sync.Once
+	wroteHeader bool
+	delegate    http.ResponseWriter
+	written     int
+	status      int
+	req         *http.Request
+	sendStatus  sync.Once
 }
 
 func (i *respInterceptor) Header() http.Header {
@@ -49,16 +50,17 @@ func (i *respInterceptor) Header() http.Header {
 }
 
 func (i *respInterceptor) Write(bytes []byte) (int, error) {
+	i.wroteHeader = true
 	size, err := i.delegate.Write(bytes)
 	i.written += size
 	return size, err
 }
 
 func (i *respInterceptor) WriteHeader(statusCode int) {
-	i.sendStatus.Do(func() {
+	if !i.wroteHeader {
 		i.delegate.WriteHeader(statusCode)
 		i.status = statusCode
-	})
+	}
 }
 
 func (i *respInterceptor) Written() int {
