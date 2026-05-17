@@ -14,7 +14,7 @@
 
 module github.com/rkosegi/go-http-commons
 
-go 1.25.0
+go 1.26
 
 require (
 	github.com/avast/retry-go/v4 v4.7.0
