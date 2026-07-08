@@ -27,3 +27,18 @@ type RunCloser interface {
 	// Run runs a server and blocks caller until given context is done.
 	Run(ctx context.Context) error
 }
+
+// SystemVersionInfo encapsulates common version information
+type SystemVersionInfo struct {
+	// BuildTime Time when application was built
+	BuildTime *string `json:"build-time,omitempty" yaml:"build-time,omitempty"`
+
+	// BuildUser User who built application
+	BuildUser *string `json:"build-user,omitempty" yaml:"build-user,omitempty"`
+
+	// Revision VCS revision
+	Revision *string `json:"revision,omitempty" yaml:"revision,omitempty"`
+
+	// Version Application version
+	Version *string `json:"version,omitempty" yaml:"version,omitempty"`
+}
