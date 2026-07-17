@@ -12,32 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-name: CI
+name: Build
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: '1.26'
-
-      - name: Install lint tools
-        run: |
-          go install golang.org/x/tools/cmd/goimports@latest
-
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install lint tools
+        run: |
+          go install golang.org/x/tools/cmd/goimports@v0.46.0
+
+      - name: Install YP
+        uses: rkosegi/yaml-pipeline@cb4c520d15499fd8b512af1a15947d677065c7d4 #v0.0.8
+        with:
+          file: pipelines/noop.yaml
+
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+      - name: Generate files
+        run: make generate
+
+      - name: Upload generated files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          include-hidden-files: true
+          path: .private
+          if-no-files-found: error
 
       - name: Go build
         run: go build -v ./...

@@ -16,6 +16,10 @@
           "type": "integer"
         }
       },
+      "required": [
+        "allowed_origins",
+        "max_age"
+      ],
       "type": "object"
     },
     "serverConfig": {
@@ -36,10 +40,27 @@
           "$ref": "#/$defs/telemetryConfig"
         },
         "tls": {
-          "$ref": "#/$defs/tlsConfig"
+          "$ref": "#/$defs/TLSConfig"
+        },
+        "read_timeout": {
+          "description": "HTTP read timeout",
+          "type": "string"
+        },
+        "read_header_timeout": {
+          "description": "HTTP headers receive timeout",
+          "type": "string"
+        },
+        "write_timeout": {
+          "description": "HTTP write timeout",
+          "type": "string"
+        },
+        "idle_timeout": {
+          "description": "Idle timeout",
+          "type": "string"
         }
       },
       "required": [
+        "api_prefix",
         "listen_address"
       ],
       "type": "object"
@@ -58,11 +79,12 @@
         }
       },
       "required": [
-        "enabled"
+        "enabled",
+        "path"
       ],
       "type": "object"
     },
-    "tlsConfig": {
+    "TLSConfig": {
       "additionalProperties": false,
       "description": "TLS configuration",
       "properties": {
@@ -75,6 +97,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "cert_file",
+        "key_file"
+      ],
       "type": "object"
     }
   },
