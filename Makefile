@@ -27,8 +27,17 @@ update-go-deps:
 	done
 	@go mod tidy
 
+generate:
+	test -d .private || mkdir .private
 
-build-local:
+	yp --file pipelines/jsonschema-to-openapi.yaml --set vars.inputFile=schemas/api.types.json --set vars.version="$(VERSION)"
+	go tool oapi-codegen --config=schemas/.openapi-api-types.yaml .private/api.types-spec.yaml
+
+	yp --file pipelines/jsonschema-to-openapi.yaml --set vars.inputFile=schemas/server.config.json --set vars.version="$(VERSION)"
+	yq eval-all '. as $$item ireduce ({}; . *+ $$item)' -i .private/server.config-spec.yaml schemas/.generator-patch-server-config.yaml -oyaml
+	go tool oapi-codegen --config=schemas/.openapi-server-config.yaml .private/server.config-spec.yaml
+
+build-local: generate
 	go mod tidy
 	go fmt ./...
 	CGO_ENABLED=0 go build -v ./...

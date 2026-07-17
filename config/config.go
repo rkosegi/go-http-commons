@@ -34,40 +34,6 @@ const (
 	DefaultMetricPath = "/metrics"
 )
 
-type TLSConfig struct {
-	// Path to certification bundle (cert+CAs)
-	CertFile string `yaml:"cert_file"`
-	// Path to private key
-	KeyFile string `yaml:"key_file"`
-}
-
-// CorsConfig configures CORS
-type CorsConfig struct {
-	// AllowedOrigins controls value of Access-Control-Allow-Origin header.
-	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins"`
-	// MaxAge controls value of Access-Control-Max-Age header.
-	MaxAge int `yaml:"max_age" json:"max_age"`
-}
-
-type TelemetryConfig struct {
-	Enabled bool `yaml:"enabled" json:"enabled"`
-	// Path under which prometheus registry is exposed
-	// If empty, then "/metrics" is assumed
-	Path string `yaml:"path,omitempty" json:"path,omitempty"`
-}
-
-type ServerConfig struct {
-	ListenAddress     string           `yaml:"listen_address" json:"listen_address"`
-	APIPrefix         string           `yaml:"api_prefix,omitempty" json:"api_prefix,omitempty"`
-	TLS               *TLSConfig       `yaml:"tls,omitempty" json:"tls,omitempty"`
-	Cors              *CorsConfig      `yaml:"cors,omitempty" json:"cors,omitempty"`
-	Telemetry         *TelemetryConfig `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
-	ReadTimeout       *time.Duration   `yaml:"read_timeout,omitempty" json:"read_timeout,omitempty"`
-	ReadHeaderTimeout *time.Duration   `yaml:"read_header_timeout,omitempty" json:"read_header_timeout,omitempty"`
-	WriteTimeout      *time.Duration   `yaml:"write_timeout,omitempty" json:"write_timeout,omitempty"`
-	IdleTimeout       *time.Duration   `yaml:"idle_timeout,omitempty" json:"idle_timeout,omitempty"`
-}
-
 func (t *TLSConfig) BindFlags(prefix string, pf *pflag.FlagSet) {
 	pf.StringVar(&t.CertFile, prefix+"tls-cert-file", "", "TLS certificate file")
 	pf.StringVar(&t.KeyFile, prefix+"tls-key-file", "", "TLS key file")

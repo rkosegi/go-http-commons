@@ -1,0 +1,31 @@
+{
+  "$defs": {
+    "SystemVersionInfo": {
+      "additionalProperties": false,
+      "description": "Encapsulates common version information",
+      "properties": {
+        "version": {
+          "description": "Application version",
+          "type": "string"
+        },
+        "revision": {
+          "description": "VCS revision",
+          "type": "string"
+        },
+        "build-time": {
+          "description": "Time when application was built",
+          "type": "string"
+        },
+        "build-user": {
+          "description": "User who built application",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/rkosegi/go-http-commons/schemas/api-types",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Common REST API types",
+  "type": "object"
+}
