@@ -78,17 +78,17 @@ type TelemetryConfig struct {
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"nFXBbtswDP0VgdvRSQP0llvRHVagRYM1wA7DECg2bXOVJY+iEwdF/n2Q7dRpnMxbbrb4+Eg+ktIbxK4o",
-	"nUUrHuZv4OMcC918Lh9f7p1NKQs/OklIyFltFuxKZCH0ME+18RhBgj5mKoMd5sFPxY1jxbo5i6A8cnqD",
-	"GFlWKRkMPx+dF1pyJU4Fq9qS5CqAKaVYC6p1ZRODEIHsSoQ5eGGyGewjeMXdPzOWTJvA9oq7IdU+Asbf",
-	"FTEmMP9xlOpRjJ/vXm79C2MJCcSO/VVy3T9/G9NLG+O2mKwcU0bWD2u8awHPrT2wCTvj1UabCpVL1V0c",
-	"o/eT+9YwafCTFq5y1AnyFCIgwaJhH8jbHWhmvQv/ha5XOjuj9pOu7zIcz+BJ15MA7IN3IcgKZsiDRpxq",
-	"0OdwrhseeYPc9+Njki+NdUz0klYlY0r1Gb0XD6qznQ5QBPUkcxOrC2yBixbXjUjg+syYwhw+3fSrd9Pt",
-	"3c3RGO0joMTgSqhAV8kwi4fEoDpYL+TRHQbU9Muh1H0EhrygXekkYfTnJqo1hMVpoaqRaDAYjDpZtU28",
-	"nOjX5XLRddorxhhpc3XiTcC/RwqQa+kFDRYovBtr1Duw75aY0fb2d+rHOVk+vgSGLZPgSHUN5rryTleq",
-	"n/DBQJxbqtOS//NZOHiP7B1avTYhwdPqv+coObKSHFUgotgrsl64KtBKQ6Z87iqTqDWqA817HWvnDOqm",
-	"yaWW/IK64eLCWtQ2R+7DHNHWpfPHtBfejT58E2woZ3Agm7rmuiUJL9fZe0m1owMRbJB9m+lsOpvehkJc",
-	"iVaXBHO4nc6msy5akHG//xMAAP//",
+	"nFXBbtswDP0VgdvRSQNsp9yK7rACLRqsAXYYhkCxaZurLHkUnTgo8u+DbKdO42TecrPFx0fykZReIXZF",
+	"6Sxa8TB/BR/nWOjmc/nwfOdsSln40UlCQs5qs2BXIguhh3mqjccIEvQxUxnsMA9+Km4cK9bNWQTlkdMr",
+	"xMiySslg+HnvvNCSK3EqWNWWJFcBTCnFWlCtK5sYhAhkVyLMwQuTzWAfwQvu/pmxZNoEthfcDan2ETD+",
+	"rogxgfmPo1SPYvx883LrXxhLSCB27K+S6+7p25he2hi3xWTlmDKyfljjbQt4au2BTdgZrzbaVKhcqm7j",
+	"GL2f3LWGSYOftHCVo06QpxABCRYN+0De7kAz6134L3S90tkZtR91fZvheAaPup4EYB+8C0FWMEMeNOJU",
+	"gz6Hc93wyBvkvh/vk3xurGOil7QqGVOqz+i9uFed7XSAIqgnmZtYXWALXLS4bkQC10fGFObw4aZfvZtu",
+	"726OxmgfASUGV0IFukqGWdwnBtXBeiGP7jCgpl8Ope4jMOQF7UonCaM/N1GtISxOC1WNRIPBYNTJqm3i",
+	"5US/LpeLrtNeMcZIm6sTbwL+PVKAXEsvaLBA4d1Yo96AfbfEjLa3v1Pfz8ny4TkwbJkER6prMNeVd7pS",
+	"/YQPBuLcUp2W/J/PwsF7ZO/Q6rUJCZ5W/z1HyZGV5KgCEcVekfXCVYFWGjLlc1eZRK1RHWje6lg7Z1A3",
+	"TS615BfUDRcX1qK2OXIf5oi2Lp0/pr3wbvThm2BDOYMD2dQ11y1JeLnO3kuqHR2IYIPs20xn09n0cyjE",
+	"lWh1STCHT9PZdNZFCzLu938CAAD//w==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
