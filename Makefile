@@ -52,11 +52,12 @@ bump-patch-version:
 	@echo Current: $(VERSION)
 	@echo Next: $(VER_NEXT_PATCH)
 	@echo "$(VER_NEXT_PATCH)" > VERSION
-	git add -- VERSION
-	git commit -sm "Bump version to $(VER_NEXT_PATCH)"
+	pre-commit run -a || true
+	git add -- VERSION api config
+	git commit -s -S -m "Bump version to $(VER_NEXT_PATCH)"
 
 git-tag:
-	git tag -am "Release v$(VERSION)" v$(VERSION)
+	git tag -a -s -m "Release v$(VERSION)" v$(VERSION)
 
 git-push-tag:
 	git push --tags
