@@ -20,7 +20,7 @@ tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 
 require (
 	github.com/avast/retry-go/v4 v4.7.0
-	github.com/getkin/kin-openapi v0.142.0
+	github.com/getkin/kin-openapi v0.143.0
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 )
