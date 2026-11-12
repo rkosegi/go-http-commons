@@ -34,7 +34,7 @@ jobs:
           go install golang.org/x/tools/cmd/goimports@v0.46.0
 
       - name: Install YP
-        uses: rkosegi/yaml-pipeline@069d8a83bd80ae3ce4cc3a1f1aec621a4e0e70fe #v0.0.11
+        uses: rkosegi/yaml-pipeline@217456f3c427a917e7e5b3f7d4ad9021ebf40e9f #v0.0.12
         with:
           file: pipelines/noop.yaml
 
